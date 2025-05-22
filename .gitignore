@@ -18,7 +18,7 @@ pnpm-debug.log*
 ai-deployments.yaml
 complete-deployment.yaml
 sshconfig
-
+test.txt
 # Editor directories and files
 .idea
 .vscode
