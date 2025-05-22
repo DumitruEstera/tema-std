@@ -186,15 +186,21 @@ export default {
         const formData = new FormData();
         formData.append('file', this.selectedFile);
 
-        const response = await axios.post(`${this.backendUrl}/api/upload`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        });
+        const response = await axios.post(`${this.backendUrl}/api/upload`, formData);
 
         this.uploadResult = response.data;
+
+        if (this.$refs.fileInput) {
+          this.$refs.fileInput.value = '';
+        }
+
         this.selectedFile = null;
-        this.$refs.fileInput.value = '';
+        
+        this.$nextTick(() => {
+          if (this.$refs.fileInput) {
+            this.$refs.fileInput.value = '';
+          }
+        });
         
         // Reload history
         await this.loadHistory();
