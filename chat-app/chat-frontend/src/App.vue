@@ -112,14 +112,27 @@ export default {
   },
   methods: {
     initSocket() {
-      // Connect to the backend server
-      const backendUrl = process.env.NODE_ENV === 'production' 
-        ? `ws://${window.location.hostname}:30088`  
-        : 'http://localhost:88';
+      // Connect to the backend server - fixed for Kubernetes deployment
+      let backendUrl;
+      
+      if (process.env.NODE_ENV === 'production') {
+        // In production (Kubernetes), use the same hostname with the NodePort
+        const hostname = window.location.hostname;
+        backendUrl = `http://${hostname}:30088`;
+      } else {
+        // In development
+        backendUrl = 'http://localhost:88';
+      }
+      
+      console.log('Connecting to backend:', backendUrl);
       
       this.socket = io(backendUrl, {
-        ransports: ['websocket', 'polling'],
-        path: '/socket.io/'  // Ensure correct path
+        transports: ['websocket', 'polling'],
+        path: '/socket.io/',
+        withCredentials: true,
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
       });
 
       // Connection events
@@ -130,6 +143,11 @@ export default {
 
       this.socket.on('disconnect', () => {
         console.log('Disconnected from server');
+        this.connectionStatus = 'disconnected';
+      });
+
+      this.socket.on('connect_error', (error) => {
+        console.error('Connection error:', error);
         this.connectionStatus = 'disconnected';
       });
 
@@ -249,6 +267,7 @@ export default {
 </script>
 
 <style scoped>
+/* ... styles remain the same ... */
 * {
   box-sizing: border-box;
 }
@@ -514,7 +533,6 @@ export default {
   background: #f3f4f6;
 }
 
-/* Responsive design */
 @media (max-width: 768px) {
   .chat-container {
     height: 100vh;

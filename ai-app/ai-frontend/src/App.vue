@@ -102,38 +102,48 @@ export default {
       fileHistory: [],
       isLoadingHistory: true,
       connectionStatus: 'disconnected',
-      isDragOver: false
+      isDragOver: false,
+      backendUrl: ''
     }
   },
   mounted() {
+    this.setupBackendUrl();
     this.checkConnection();
     this.loadHistory();
   },
   methods: {
+    setupBackendUrl() {
+      if (process.env.NODE_ENV === 'production') {
+        // In production (Kubernetes), use the same hostname with the NodePort
+        const hostname = window.location.hostname;
+        this.backendUrl = `http://${hostname}:30091`;
+      } else {
+        // In development
+        this.backendUrl = 'http://localhost:3001';
+      }
+      console.log('Backend URL:', this.backendUrl);
+    },
+
     async checkConnection() {
       try {
-        const backendUrl = process.env.NODE_ENV === 'production' 
-          ? `http://${window.location.hostname}:30091`  // NodePort for AI backend
-          : 'http://localhost:3001';
-        
-        await axios.get(`${backendUrl}/health`);
+        await axios.get(`${this.backendUrl}/health`);
         this.connectionStatus = 'connected';
       } catch (error) {
         console.error('Connection check failed:', error);
         this.connectionStatus = 'disconnected';
+        // Retry connection after 5 seconds
+        setTimeout(() => this.checkConnection(), 5000);
       }
     },
 
     async loadHistory() {
       try {
-        const backendUrl = process.env.NODE_ENV === 'production' 
-          ? `http://${window.location.hostname}:30091`
-          : 'http://localhost:3001';
-        
-        const response = await axios.get(`${backendUrl}/api/files`);
+        const response = await axios.get(`${this.backendUrl}/api/files`);
         this.fileHistory = response.data;
       } catch (error) {
         console.error('Error loading history:', error);
+        // Retry after 3 seconds if failed
+        setTimeout(() => this.loadHistory(), 3000);
       } finally {
         this.isLoadingHistory = false;
       }
@@ -164,7 +174,10 @@ export default {
     },
 
     async uploadFile() {
-      if (!this.selectedFile) return;
+      if (!this.selectedFile || this.connectionStatus !== 'connected') {
+        alert('Please ensure the service is connected before uploading.');
+        return;
+      }
 
       this.isUploading = true;
       this.uploadResult = null;
@@ -173,11 +186,7 @@ export default {
         const formData = new FormData();
         formData.append('file', this.selectedFile);
 
-        const backendUrl = process.env.NODE_ENV === 'production' 
-          ? `http://${window.location.hostname}:30091`
-          : 'http://localhost:3001';
-
-        const response = await axios.post(`${backendUrl}/api/upload`, formData, {
+        const response = await axios.post(`${this.backendUrl}/api/upload`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
@@ -194,7 +203,7 @@ export default {
         console.error('Upload error:', error);
         this.uploadResult = {
           success: false,
-          error: error.response?.data?.error || 'Upload failed'
+          error: error.response?.data?.error || 'Upload failed. Please try again.'
         };
       } finally {
         this.isUploading = false;
@@ -225,6 +234,7 @@ export default {
 </script>
 
 <style scoped>
+/* ... styles remain the same ... */
 * {
   box-sizing: border-box;
 }
@@ -526,7 +536,6 @@ export default {
   text-decoration: underline;
 }
 
-/* Responsive design */
 @media (max-width: 768px) {
   #app {
     padding: 10px;
