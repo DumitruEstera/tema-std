@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: chat_mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - chat_network
+
+  # Node.js Chat Backend with Apache
+  chat_backend:
+    build: ./chat-backend
+    container_name: chat_backend
+    restart: always
+    ports:
+      - "88:88"
+    environment:
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017/chatdb?authSource=admin
+      - PORT=3000
+    depends_on:
+      - mongodb
+    networks:
+      - chat_network
+
+  # Vue Chat Frontend
+  chat_frontend:
+    build: ./chat-frontend
+    container_name: chat_frontend
+    restart: always
+    ports:
+      - "90:80"
+    networks:
+      - chat_network
+
+volumes:
+  mongodb_data:
+
+networks:
+  chat_network:
+    driver: bridge

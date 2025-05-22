@@ -1,0 +1,24 @@
+{
+  "name": "chat-frontend",
+  "version": "1.0.0",
+  "description": "Vue.js Chat Frontend",
+  "scripts": {
+    "serve": "vue-cli-service serve --host 0.0.0.0 --port 8080",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "vue": "^3.3.4",
+    "socket.io-client": "^4.7.2",
+    "axios": "^1.5.0"
+  },
+  "devDependencies": {
+    "@vue/cli-service": "^5.0.8",
+    "@vue/compiler-sfc": "^3.3.4"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}
