@@ -16,6 +16,8 @@ pnpm-debug.log*
 .env.*.local
 
 ai-deployments.yaml
+complete-deployment.yaml
+sshconfig
 
 # Editor directories and files
 .idea
