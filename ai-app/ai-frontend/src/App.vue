@@ -113,7 +113,7 @@ export default {
     async checkConnection() {
       try {
         const backendUrl = process.env.NODE_ENV === 'production' 
-          ? `${window.location.protocol}//${window.location.hostname}:91`
+          ? `http://${window.location.hostname}:30091`  // NodePort for AI backend
           : 'http://localhost:3001';
         
         await axios.get(`${backendUrl}/health`);
@@ -127,7 +127,7 @@ export default {
     async loadHistory() {
       try {
         const backendUrl = process.env.NODE_ENV === 'production' 
-          ? `${window.location.protocol}//${window.location.hostname}:91`
+          ? `http://${window.location.hostname}:30091`
           : 'http://localhost:3001';
         
         const response = await axios.get(`${backendUrl}/api/files`);
@@ -174,7 +174,7 @@ export default {
         formData.append('file', this.selectedFile);
 
         const backendUrl = process.env.NODE_ENV === 'production' 
-          ? `${window.location.protocol}//${window.location.hostname}:91`
+          ? `http://${window.location.hostname}:30091`
           : 'http://localhost:3001';
 
         const response = await axios.post(`${backendUrl}/api/upload`, formData, {

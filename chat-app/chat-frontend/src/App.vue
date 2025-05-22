@@ -114,11 +114,12 @@ export default {
     initSocket() {
       // Connect to the backend server
       const backendUrl = process.env.NODE_ENV === 'production' 
-        ? `${window.location.protocol}//${window.location.hostname}:88`
+        ? `ws://${window.location.hostname}:30088`  
         : 'http://localhost:88';
       
       this.socket = io(backendUrl, {
-        transports: ['websocket', 'polling']
+        ransports: ['websocket', 'polling'],
+        path: '/socket.io/'  // Ensure correct path
       });
 
       // Connection events
