@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fault Tolerant Systems - Integrated Platform</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .app-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .app-section h2 {
+            color: #4f46e5;
+            margin-top: 0;
+        }
+        
+        .iframe-container {
+            width: 100%;
+            height: 600px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .description {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .iframe-container {
+                height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Our Integrated Platform</h1>
+        
+        <!-- Chat Application Section -->
+        <div class="app-section">
+            <h2>💬 Live Chat</h2>
+            <p class="description">
+                Connect with other users in real-time using our WebSocket-powered chat application.
+            </p>
+            <div class="iframe-container">
+                <iframe 
+                    src="http://YOUR_NODE_IP:30090" 
+                    title="Chat Application"
+                    allow="clipboard-write">
+                </iframe>
+            </div>
+        </div>
+        
+        <!-- AI Sentiment Analysis Section -->
+        <div class="app-section">
+            <h2>🤖 AI Sentiment Analysis</h2>
+            <p class="description">
+                Upload text files to analyze sentiment using Azure Cognitive Services.
+            </p>
+            <div class="iframe-container">
+                <iframe 
+                    src="http://YOUR_NODE_IP:30092" 
+                    title="AI Sentiment Analysis"
+                    allow="clipboard-write">
+                </iframe>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Replace YOUR_NODE_IP with actual node IP
+        document.addEventListener('DOMContentLoaded', function() {
+            const nodeIP = window.location.hostname; // This will use the current hostname
+            const iframes = document.querySelectorAll('iframe');
+            
+            iframes[0].src = `http://${nodeIP}:30090`; // Chat Frontend
+            iframes[1].src = `http://${nodeIP}:30092`; // AI Frontend
+        });
+    </script>
+</body>
+</html>
