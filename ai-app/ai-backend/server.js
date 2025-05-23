@@ -8,6 +8,7 @@ require('dotenv').config();
 
 const app = express();
 
+
 // CORS configuration - Updated to be more flexible for Kubernetes
 app.use(cors({
   origin: function(origin, callback) {
