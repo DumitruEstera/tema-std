@@ -72,7 +72,7 @@
             </p>
             <div class="iframe-container">
                 <iframe 
-                    src="http://98.70.58.90:30090" 
+                    src="http://YOUR_NODE_IP:30090" 
                     title="Chat Application"
                     allow="clipboard-write">
                 </iframe>
@@ -87,7 +87,7 @@
             </p>
             <div class="iframe-container">
                 <iframe 
-                    src="http://98.70.58.90:30092" 
+                    src="http://YOUR_NODE_IP:30092" 
                     title="AI Sentiment Analysis"
                     allow="clipboard-write">
                 </iframe>
@@ -101,8 +101,8 @@
             const nodeIP = window.location.hostname; // This will use the current hostname
             const iframes = document.querySelectorAll('iframe');
             
-            iframes[0].src = 'http://${nodeIP}:30090'; // Chat Frontend
-            iframes[1].src = 'http://${nodeIP}:30092'; // AI Frontend
+            iframes[0].src = `http://${nodeIP}:30090`; // Chat Frontend
+            iframes[1].src = `http://${nodeIP}:30092`; // AI Frontend
         });
     </script>
 </body>
