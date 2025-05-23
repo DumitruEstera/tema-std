@@ -3,6 +3,8 @@ const http = require('http');
 const socketIo = require('socket.io');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const { createAdapter } = require('@socket.io/redis-adapter');
+const { createClient } = require('redis');
 require('dotenv').config();
 
 const app = express();
@@ -23,6 +25,31 @@ const io = socketIo(server, {
 });
 
 app.use(express.json());
+
+// Redis adapter setup for multi-pod WebSocket support
+async function setupRedisAdapter() {
+  try {
+    const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+    console.log('Connecting to Redis:', redisUrl);
+    
+    const pubClient = createClient({ url: redisUrl });
+    const subClient = pubClient.duplicate();
+    
+    await Promise.all([
+      pubClient.connect(),
+      subClient.connect()
+    ]);
+    
+    io.adapter(createAdapter(pubClient, subClient));
+    console.log('Redis adapter configured successfully');
+  } catch (error) {
+    console.error('Redis adapter setup failed:', error);
+    console.log('Continuing without Redis adapter (single pod mode)');
+  }
+}
+
+// Initialize Redis adapter
+setupRedisAdapter();
 
 // MongoDB connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://admin:password123@localhost:27017/chatdb?authSource=admin';
@@ -111,7 +138,7 @@ io.on('connection', (socket) => {
 
       const savedMessage = await newMessage.save();
       
-      // Broadcast message to all connected clients
+      // Broadcast message to all connected clients across all pods
       io.emit('receive_message', {
         _id: savedMessage._id,
         username: savedMessage.username,
@@ -126,12 +153,12 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Handle user typing
+  // Handle user typing - broadcast to all other users across pods
   socket.on('typing', (data) => {
     socket.broadcast.emit('user_typing', data);
   });
 
-  // Handle stop typing
+  // Handle stop typing - broadcast to all other users across pods
   socket.on('stop_typing', (data) => {
     socket.broadcast.emit('user_stop_typing', data);
   });
@@ -147,4 +174,5 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`Chat server running on port ${PORT}`);
   console.log(`MongoDB URI: ${MONGODB_URI}`);
+  console.log(`Redis URL: ${process.env.REDIS_URL || 'Not configured'}`);
 });
